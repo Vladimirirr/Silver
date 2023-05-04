@@ -1,0 +1,27 @@
+{
+  "name": "silver",
+  "version": "0.0.0",
+  "description": "The web framework based on WebComponents.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vladimirirr/Silver.git"
+  },
+  "keywords": [
+    "silver",
+    "silver.js",
+    "web-framework",
+    "web-components",
+    "web",
+    "framework",
+    "javascript",
+    "view"
+  ],
+  "author": "RYZZ(Zhenyu Yang)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Vladimirirr/Silver/issues"
+  },
+  "homepage": "https://github.com/Vladimirirr/Silver#readme"
+}

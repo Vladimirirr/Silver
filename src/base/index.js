@@ -1,0 +1,1 @@
+class SilverComponent extends HTMLElement {}

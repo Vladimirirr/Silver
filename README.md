@@ -1,2 +1,13 @@
+**English** | [简体中文](./README.zh_CN.md)
+
+**This project is working in progress.**
+
 # Silver
-The web framework based on WebComponents.
+
+Silver is a web framework based on WebComponents.
+
+# Getting Started
+
+# License
+
+The Silver is under [MIT](./LICENSE) License.
