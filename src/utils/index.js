@@ -24,11 +24,3 @@ export const camelize = (name, reverse = false) => {
     : (_, g) => `${g.toUpperCase()}`
   return name.replace(reg, replacer)
 }
-
-export const eventDelegator = (event, instance) => {
-  const { target } = event
-  const listening = target.dataset['listening']
-  if (isNotEmpty(listening)) {
-    instance.event.run(listening, event)
-  }
-}

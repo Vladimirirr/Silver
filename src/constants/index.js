@@ -1,1 +1,1 @@
-export const DelegatedEvents = ['click', 'change', 'input', 'keypress']
+export const EventListeningTag = 'listening'

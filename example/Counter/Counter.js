@@ -12,7 +12,11 @@ const CounterCore = ({ state, attr, event, lifecycle }) => {
   state.add('current', 0)
 
   // declare some method
-  const add = () => state.set('current', state.get('current') + 1)
+  const add = () => {
+    // the two (and more) `state.set` only trigger once actually update
+    state.set('current', state.get('current') + 1)
+    state.set('current', state.get('current') + 1)
+  }
   const minus = () => state.set('current', state.get('current') - 1)
 
   // hook some lifecycle

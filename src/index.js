@@ -1,21 +1,24 @@
-import { DelegatedEvents } from './constants/index.js'
-import {
-  isBoolean,
-  isNotSameValue,
-  camelize,
-  eventDelegator,
-} from './utils/index.js'
+import SilverComponent from './base/index.js'
 
-const createComponent = (component) => {
-  return class extends HTMLElement {
+import { enqueueUpdater, beginUpdate, resetUpdate } from './scheduler/index.js'
+
+import { DelegatedEvents } from './base/constant.js'
+import { isBoolean, isNotSameValue } from './utils/index.js'
+
+const createComponent = (component, options) => {
+  const resolvedOptions = Object(
+    {
+      props: component.props || [],
+      emits: component.emits || [],
+    },
+    options
+  )
+  return class extends SilverComponent {
     constructor() {
-      super()
+      super(resolvedOptions)
 
       // component itself
       const instance = this
-
-      // how many times the component had been mounted and unmounted
-      instance.lifes = 0
 
       // component name
       instance.name = component.name || 'unknown'
@@ -83,11 +86,16 @@ const createComponent = (component) => {
         instance.lifecycle = {
           data: new Map(),
           on(name, hook) {
-            this.data.set(name, hook)
+            const hooks = this.data.get(name)
+            if (hooks) {
+              hooks.push(this.data.set(name, hook))
+            } else {
+              this.data.set(name, [hook])
+            }
           },
-          trigger(name) {
-            const hook = this.data.get(name)
-            hook?.()
+          call(name) {
+            const hooks = this.data.get(name)
+            hooks?.forEach((hook) => hook()) // NOT `hook.call(this)` because that defining a component is a pure function
           },
         }
       }
@@ -97,12 +105,21 @@ const createComponent = (component) => {
     init() {
       const instance = this
 
-      // internal status: preparing, running, ended
-      instance.status = 'preparing'
+      instance.baseInit()
 
       const result = component.initialize(instance)
       instance.$render = result.render
       instance.$style = result.style
+
+      // add the core parts cleanup function in last
+      instance.lifecycle.on('unmounted', () => {
+        instance.state.data.clear()
+
+        instance.event.data.clear()
+        instance.event.id = 0
+
+        instance.lifecycle.data.clear()
+      })
     }
     update() {
       const instance = this
@@ -111,100 +128,10 @@ const createComponent = (component) => {
         throw 'Update called invalidly.'
       }
 
-      instance.rootNode.innerHTML = instance.$render(instance.props)
+      instance.rootNode.innerHTML = this.baseUpdate()
 
       if (instance.status == 'running') {
-        instance.lifecycle.trigger('updated')
-      }
-    }
-    connectedCallback() {
-      const instance = this
-
-      if (instance.lifes == 0) {
-        instance.content = instance.attachShadow({ mode: 'open' })
-      } else {
-        // reuse it
-        instance.init()
-      }
-
-      {
-        // init style
-        const styleNode = document.createElement('style')
-        styleNode.id = 'componentStyle'
-        styleNode.textContent = instance.$style
-        instance.content.appendChild(styleNode)
-      }
-      {
-        // init root container node
-        const rootNode = document.createElement('div')
-        rootNode.id = 'root'
-        rootNode.className = 'root'
-        instance.content.appendChild(rootNode)
-        instance.rootNode = rootNode
-      }
-
-      instance.eventDelegator = (event) => eventDelegator(event, instance)
-      DelegatedEvents.forEach((eventName) => {
-        instance.content.addEventListener(
-          eventName,
-          instance.eventDelegator,
-          true
-        )
-      })
-
-      // first update
-      instance.update()
-
-      instance.lifecycle.trigger('mounted')
-
-      instance.status = 'running'
-
-      instance.lifes++
-    }
-    disconnectedCallback() {
-      const instance = this
-
-      instance.lifecycle.trigger('beforeUnmount')
-
-      // remove all event listeners
-      DelegatedEvents.forEach((eventName) => {
-        instance.content.removeEventListener(
-          eventName,
-          instance.eventDelegator,
-          true
-        )
-      })
-
-      // clear content
-      instance.rootNode.innerHTML = ''
-      instance.content.innerHTML = ''
-
-      instance.lifecycle.trigger('unmounted')
-
-      {
-        // clear all core parts
-        instance.state.data.clear()
-
-        instance.event.data.clear()
-        instance.event.id = 0
-
-        instance.lifecycle.data.clear()
-      }
-
-      instance.status = 'ended'
-    }
-    static get observedAttributes() {
-      const needObserving = component.props.map((i) => camelize(i, true))
-      console.log('observing these attributes', needObserving)
-      return needObserving
-    }
-    attributeChangedCallback(name, oldValue, newValue) {
-      const instance = this
-      if (isNotSameValue(oldValue, newValue)) {
-        instance.props[camelize(name)] = newValue
-        if (instance.status == 'running') {
-          instance.update()
-        }
+        instance.lifecycle.call('updated')
       }
     }
   }

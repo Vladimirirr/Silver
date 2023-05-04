@@ -10,7 +10,7 @@ let isUpdating = false
  * @param {Function} updater
  * @return {boolean} success or not
  */
-const queueUpdater = (updater) => {
+export const enqueueUpdater = (updater) => {
   const isExisted = updatersQueue.indexOf(updater) > -1
   if (isExisted) {
     // all same updaters will keep only one
@@ -23,7 +23,7 @@ const queueUpdater = (updater) => {
 /**
  * begin the update, and call all updaters in updatersQueue
  */
-const beginUpdate = () => {
+export const beginUpdate = () => {
   if (isUpdating) {
     throw '[internal error in scheduler]: An update is running.'
   }
@@ -59,7 +59,7 @@ const beginUpdate = () => {
 /**
  * reset all status
  */
-const resetUpdate = () => {
+export const resetUpdate = () => {
   updatersQueue.length = 0
   updatersCurrentUpdatedCount.clear()
   isUpdating = false
