@@ -2,8 +2,12 @@
   "name": "silver",
   "version": "0.0.0",
   "description": "The web framework based on WebComponents.",
+  "type": "module",
   "main": "index.js",
-  "scripts": {},
+  "typings": "index.d.ts",
+  "scripts": {
+    "build": "node ./build/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Vladimirirr/Silver.git"
@@ -23,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/Vladimirirr/Silver/issues"
   },
-  "homepage": "https://github.com/Vladimirirr/Silver#readme"
+  "homepage": "https://github.com/Vladimirirr/Silver#README",
+  "devDependencies": {
+    "esbuild": "0.17.6"
+  }
 }

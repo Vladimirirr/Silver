@@ -12,6 +12,12 @@ export const isObject = (v) => typeof v == 'object' && v !== null
 export const isArray = (v) => isObject(v) && isNotEmpty(v.length)
 
 /**
+ * get a brand new object
+ * @return {Object}
+ */
+export const getObject = () => ({})
+
+/**
  * make a name camelized or dashed determined by the reverse
  * @param {string} name - name to be format
  * @param {boolean} reverse - true = make camelized, false = make dashed
@@ -24,3 +30,10 @@ export const camelize = (name, reverse = false) => {
     : (_, g) => `${g.toUpperCase()}`
   return name.replace(reg, replacer)
 }
+
+/**
+ * internal log (will be closed when building)
+ * @param {any[]} outputs
+ */
+export const log = (...outputs) =>
+  console.log('%c%s%c', 'color: pink;', '[internal]', '', ...outputs)

@@ -5,7 +5,9 @@ import {
   isNotEmpty,
   isNotSameValue,
   camelize,
-} from '../utils/index.js'
+} from '../utils/internal/index.js'
+
+import scheduleUpdate from '../scheduler/index.js'
 
 const DefaultOptions = {
   closeShadow: false,
@@ -24,7 +26,7 @@ export default class SilverComponent extends HTMLElement {
     super()
 
     // save options
-    this.options = Object(options, DefaultOptions)
+    this.options = Object.assign(options, DefaultOptions)
 
     // how many times the component had been mounted and unmounted
     this.lifes = 0
@@ -42,6 +44,19 @@ export default class SilverComponent extends HTMLElement {
     }
     return this.$render(this.props)
   }
+  scheduleUpdate() {
+    if (this.status == 'running') {
+      scheduleUpdate(this.updateBound)
+    }
+  }
+  sendData(name, data) {
+    const oldData = this.props[name]
+    const newData = data
+    if (isNotSameValue(oldData, newData)) {
+      this.props.set(name, newData)
+      this.update()
+    }
+  }
   connectedCallback() {
     const { options } = this
     if (this.lifes == 0) {
@@ -54,6 +69,7 @@ export default class SilverComponent extends HTMLElement {
         // init component style node
         const styleNode = document.createElement('style')
         styleNode.id = 'componentStyle'
+        styleNode.textContent = this.$style
         this.content.appendChild(styleNode)
         this.styleNode = styleNode
       }
@@ -107,12 +123,6 @@ export default class SilverComponent extends HTMLElement {
 
     this.status = 'ended'
   }
-  // static get observedAttributes() {
-  //   const { options } = this
-  //   const needObserving = options.props.map((i) => camelize(i, true))
-  //   console.log('observing these attributes', needObserving)
-  //   return needObserving
-  // }
   attributeChangedCallback(name, oldValue, newValue) {
     if (isNotSameValue(oldValue, newValue)) {
       this.props[camelize(name)] = newValue
