@@ -8,11 +8,14 @@
   </head>
   <body>
     <script type="module">
-      import createComponent from '../../src/index.js'
+      import { createApp } from '../../src/index.js'
       import Counter from './Counter.js'
 
-      customElements.define('my-counter', createComponent(Counter))
+      createApp({
+        rootComponent: Counter,
+        tagName: 'my-counter',
+      })
     </script>
-    <my-counter counter-color="hotpink"></my-counter>
+    <my-counter show-color="hotpink"></my-counter>
   </body>
 </html>

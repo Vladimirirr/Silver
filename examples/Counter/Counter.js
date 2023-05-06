@@ -4,8 +4,8 @@ import { attr } from '../../src/index.js'
  * Define a component's initializer.
  * @param {Object} effectSystem - effect system for the component (provides the powerful features to the component)
  * @param {Object} effectSystem.state - state feature
- * @param {Object} effectSystem.event- event feature
- * @param {Object} effectSystem.lifecycle- lifecycle feature
+ * @param {Object} effectSystem.event - event feature
+ * @param {Object} effectSystem.lifecycle - lifecycle feature
  * @return {Object} the component
  */
 const CounterCore = ({ state, event, lifecycle }) => {
@@ -33,7 +33,7 @@ const CounterCore = ({ state, event, lifecycle }) => {
   // A component must have and only have one root node.
   return {
     render: (props) => {
-      const { counterColor } = props
+      const showColor = props('showColor')
       const current = state('current')
       const stepOptions = Array(4)
         .fill(1)
@@ -53,7 +53,7 @@ const CounterCore = ({ state, event, lifecycle }) => {
         </div>
         <div class="counter">
           <button ${event('click', add)}>+</button>
-          <b ${attr('style', `color: ${counterColor}`)}> ${current} </b>
+          <b ${attr('style', `color: ${showColor}`)}> ${current} </b>
           <button 
             ${event('click', minus)} 
             ${attr('disabled', current == 0)}
@@ -94,6 +94,6 @@ const CounterCore = ({ state, event, lifecycle }) => {
 export default {
   name: 'MyCounter',
   initialize: CounterCore,
-  props: ['counterColor'],
+  props: ['showColor'],
   emits: [],
 }

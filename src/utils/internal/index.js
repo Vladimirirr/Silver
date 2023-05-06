@@ -30,10 +30,3 @@ export const camelize = (name, reverse = false) => {
     : (_, g) => `${g.toUpperCase()}`
   return name.replace(reg, replacer)
 }
-
-/**
- * internal log (will be closed when building)
- * @param {any[]} outputs
- */
-export const log = (...outputs) =>
-  console.log('%c%s%c', 'color: pink;', '[internal]', '', ...outputs)

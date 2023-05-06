@@ -10,6 +10,7 @@ export default (instance) => {
 
   // internal
   instance.props.set = (name, value) => (data[name] = value)
+  instance.props.reveal = () => data
 
   // internal
   instance.props.clear = () => {

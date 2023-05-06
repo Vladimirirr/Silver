@@ -6,6 +6,7 @@
   "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
+    "test": "node ./test/index.js",
     "build": "node ./build/index.js"
   },
   "repository": {

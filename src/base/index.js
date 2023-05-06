@@ -1,48 +1,55 @@
-import { EventListeningTag } from '../constants/index.js'
-import { DelegatedEvents, UseCapture } from './constant.js'
-import {
-  isEmpty,
-  isNotEmpty,
-  isNotSameValue,
-  camelize,
-} from '../utils/internal/index.js'
+import { DelegatedEvents, UseCapture, DefaultOptions } from './constants.js'
+
+import { isNotSameValue, camelize } from '../utils/internal/index.js'
+import { eventDelegator } from './utils.js'
 
 import scheduleUpdate from '../scheduler/index.js'
 
-const DefaultOptions = {
-  closeShadow: false,
-}
-
-const eventDelegator = (event, instance) => {
-  const { target } = event
-  const listening = target.dataset[EventListeningTag]
-  if (isNotEmpty(listening)) {
-    instance.event.run(listening, event)
-  }
-}
+import mixinState from './mixins/state.js'
+import mixinEvent from './mixins/event.js'
+import mixinLifecycle from './mixins/lifecycle.js'
+import mixinProps from './mixins/props.js'
 
 export default class SilverComponent extends HTMLElement {
-  constructor(options = {}) {
+  constructor(component, options) {
     super()
 
-    // save options
-    this.options = Object.assign(options, DefaultOptions)
+    // save the meta data
+    this.component = component
+    this.options = Object.assign({}, DefaultOptions, options)
 
     // how many times the component had been mounted and unmounted
     this.lifes = 0
 
     // internal status: constructing, preparing, running, ended
-    // only the constructing appears once
+    // the constructing only appears once
     this.status = 'constructing'
+
+    // mxin all core parts of the component
+    mixinState(this)
+    mixinEvent(this)
+    mixinLifecycle(this)
+    mixinProps(this)
+
+    this.init()
   }
-  baseInit() {
+  init() {
     this.status = 'preparing'
+
+    const result = this.component.initialize(this)
+    this.$render = result.render
+    this.$style = result.style
   }
-  baseUpdate() {
-    if (isEmpty(this.$render)) {
-      return ''
+  update() {
+    if (this.status == 'ended') {
+      throw 'Can not call the update when component already has been ended.'
     }
-    return this.$render(this.props)
+
+    this.rootNode.innerHTML = this.$render(this.props)
+
+    if (this.status == 'running') {
+      this.lifecycle.call('updated')
+    }
   }
   scheduleUpdate() {
     if (this.status == 'running') {
@@ -103,21 +110,25 @@ export default class SilverComponent extends HTMLElement {
   disconnectedCallback() {
     this.lifecycle.call('beforeUnmount')
 
-    // remove all event listeners
-    DelegatedEvents.forEach((eventName) => {
-      // remove
-      this.content.removeEventListener(
-        eventName,
-        this.eventDelegator,
-        UseCapture
-      )
-    })
+    // // remove all event listeners
+    // DelegatedEvents.forEach((eventName) => {
+    //   // do remove
+    //   this.content.removeEventListener(
+    //     eventName,
+    //     this.eventDelegator,
+    //     UseCapture
+    //   )
+    // })
 
-    {
-      // clear content
-      this.rootNode.innerHTML = ''
-      this.styleNode.innerHTML = ''
-    }
+    // // clear all core parts
+    // this.state.clear()
+    // this.event.clear()
+    // this.lifecycle.clear()
+    // this.props.clear()
+
+    // // clear content
+    // this.rootNode.innerHTML = ''
+    // this.styleNode.innerHTML = ''
 
     this.lifecycle.call('unmounted')
 
@@ -125,7 +136,7 @@ export default class SilverComponent extends HTMLElement {
   }
   attributeChangedCallback(name, oldValue, newValue) {
     if (isNotSameValue(oldValue, newValue)) {
-      this.props[camelize(name)] = newValue
+      this.props.set(camelize(name), newValue)
       if (this.status == 'running') {
         this.update()
       }
