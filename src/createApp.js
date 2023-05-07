@@ -7,7 +7,6 @@ import createComponent from './component/createComponent.js'
  * @param {string} options.tagName - core option
  * @param {boolean} options.closeShadow
  */
-
 export const createApp = ({ tagName, rootComponent, closeShadow }) => {
   customElements.define(
     tagName,

@@ -1,12 +1,7 @@
 import SilverComponent from '../base/index.js'
 
-import {
-  isObject,
-  getObject,
-  camelize,
-  makeCharUpperOrLower,
-} from '../utils/internal/index.js'
-import { formatCompoentOptions } from './utils.js'
+import { camelize, makeCharUpperOrLower } from '../utils/internal/index.js'
+import { formatCompoent, formatCompoentCarriedOptions } from './utils.js'
 
 /**
  * Create a initialized component class based on SilverComponent.
@@ -15,8 +10,8 @@ import { formatCompoentOptions } from './utils.js'
  * @return {SilverInitializedComponent}
  */
 const createComponent = (component, options) => {
-  component = formatCompoentOptions(component)
-  options = isObject(options) ? options : getObject()
+  component = formatCompoent(component)
+  options = formatCompoentCarriedOptions(options)
   return class SilverInitializedComponent extends SilverComponent {
     constructor() {
       super(component, options)

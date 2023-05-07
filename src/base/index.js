@@ -10,11 +10,16 @@ import { eventDelegator, getBaseId } from './utils.js'
 
 import scheduleUpdate from '../scheduler/index.js'
 
+// These are all effect features, which build the whole effect system for Silver components.
 import mixinState from './mixins/state.js'
 import mixinEvent from './mixins/event.js'
 import mixinLifecycle from './mixins/lifecycle.js'
 import mixinProps from './mixins/props.js'
 
+/**
+ * The SilverComponent Class definition.
+ * An attribute with prefix "$" means that it is passed or derived from outside environment.
+ */
 export default class SilverComponent extends HTMLElement {
   constructor(component, options) {
     super()
@@ -23,8 +28,8 @@ export default class SilverComponent extends HTMLElement {
     this.baseId = getBaseId()
 
     // save the meta data
-    this.component = component
-    this.options = Object.assign({}, DefaultOptions, options)
+    this.$component = component
+    this.$options = Object.assign({}, DefaultOptions, options)
 
     // how many times the component had been mounted and unmounted
     this.lifes = 0
@@ -42,7 +47,7 @@ export default class SilverComponent extends HTMLElement {
   init() {
     this.status = 'preparing'
 
-    const result = this.component.initialize(this)
+    const result = this.$component.initialize(this)
     this.$render = result.render
     this.$style = result.style || ''
 
@@ -108,11 +113,11 @@ export default class SilverComponent extends HTMLElement {
     }
   }
   connectedCallback() {
-    const { options } = this
+    const { $options } = this
     if (this.lifes == 0) {
       {
         // create the shadow dom
-        const mode = options.closeShadow ? 'closed' : 'open'
+        const mode = $options.closeShadow ? 'closed' : 'open'
         this.content = this.attachShadow({ mode })
       }
       {

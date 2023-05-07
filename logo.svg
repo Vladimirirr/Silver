@@ -1,0 +1,8 @@
+<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+ <g id="mainGroup">
+  <title>Silver Logo</title>
+  <path stroke="#aaaaff" stroke-width="2" id="bigTriangle" d="m6.42857,69.375l33.57143,-58.75l33.57143,58.75l-67.14286,0z" fill="none" />
+  <path stroke="#aad4ff" stroke-width="2" id="smallTriangle" d="m64.21432,18.81248l-24.21432,42.37504l-24.21432,-42.37504l48.42862,0l0.00001,0l0.00001,0z" fill="none" />
+  <ellipse stroke-width="2" ry="5" rx="5" id="circle" cy="32" cx="40" stroke="#ffaad4" fill="none" />
+ </g>
+</svg>

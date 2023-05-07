@@ -1,6 +1,7 @@
-import { isArray, isFunction } from '../utils/internal/index.js'
+import { isArray, isFunction, isEmpty } from '../utils/internal/index.js'
 
-export const formatCompoentOptions = (component) => {
+// format component itself
+export const formatCompoent = (component) => {
   const c = component // short name
 
   if (!isFunction(c.initialize)) {
@@ -15,3 +16,10 @@ export const formatCompoentOptions = (component) => {
   c.components = isArray(c.components) ? c.components : []
   return c
 }
+
+// format component carried options removing all Empty attrs
+export const formatCompoentCarriedOptions = (options) =>
+  Object.keys(options).reduce((acc, cur) => {
+    const v = options[cur]
+    return isEmpty(v) ? acc : (acc[cur] = v)
+  }, {})

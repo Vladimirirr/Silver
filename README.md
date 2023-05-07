@@ -1,18 +1,39 @@
+<p style="text-align: center">
+  <img src="./logo.svg" align="center" />
+</p>
+
+<h1 style="text-align: center">
+  <a href="https://github.com/Vladimirirr/Silver">Silver</a>
+</h1>
+
+<p style="text-align: center">
+  Silver is a web framework based on WebComponents.
+</p>
+
+**Status: Rapid development in progress**
+
 **English** | [简体中文](./README.zh_CN.md)
 
-**Note: This project is working in progress!**
+# Features
 
-# Silver
-
-Silver is a web framework based on WebComponents.
+- Based on WebComponents
+- Writing components with functional style
+- A Simple and Fast update strategy (upcoming)
 
 # Getting Started
 
 Just for now:
 
-1. Clone the repo.
-2. Start a local static http server in `/examples/*`.
+1. Clone the repository.
+2. Start a static http server in one of the examples in `/examples/*`.
 3. See how it works.
+
+# Ecosystem
+
+| Project        | Description                        |
+| -------------- | ---------------------------------- |
+| SilverDocument | Silver Document (upcoming)         |
+| SilverStarter  | A simple Silver project (upcoming) |
 
 # Spec
 
@@ -21,3 +42,5 @@ Silver has complete typing and testing support.
 # License
 
 The Silver is under [MIT](./LICENSE) License.
+
+Copyright &copy; 2023 - Present, RYZZ(Zhenyu Yang)
