@@ -24,9 +24,25 @@ export default (instance) => {
   }
 
   // for user event
-  instance.event.on = (name, handler) => {}
-  instance.event.off = (name, handler) => {}
-  instance.event.emit = (name, data) => {}
+  instance.event.on = (name, handler) => {
+    instance.rootNode.addEventListener(name, handler)
+  }
+  instance.event.off = (name, handler) => {
+    instance.rootNode.removeEventListener(name, handler)
+  }
+  instance.event.emit = (name, data) => {
+    // Invoke "dispatchEvent" on a Node --> The Node spreads the event --> The two capturing and bubbling stages happen
+    instance.dispatchEvent(
+      new CustomEvent(name, {
+        // bubbles
+        bubbles: true,
+        // The custom event between father and son components are scoped in where they are.
+        composed: false,
+        // carried data
+        detail: data,
+      })
+    )
+  }
 
   // internal
   instance.event.run = (eid, event) => {

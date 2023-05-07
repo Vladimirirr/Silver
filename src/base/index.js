@@ -1,4 +1,4 @@
-import { DelegatedEvents, UseCapture, DefaultOptions } from './constants.js'
+import { DelegatedEvents, DefaultOptions } from './constants.js'
 
 import {
   Empty,
@@ -74,11 +74,7 @@ export default class SilverComponent extends HTMLElement {
       this.eventDelegator = (event) => eventDelegator(event, this)
       DelegatedEvents.forEach((eventName) => {
         // Use capture mode to avoid that can not receive these events processed by stopPropagation.
-        this.content.addEventListener(
-          eventName,
-          this.eventDelegator,
-          UseCapture
-        )
+        this.rootNode.addEventListener(eventName, this.eventDelegator)
       })
     }
 
@@ -138,11 +134,10 @@ export default class SilverComponent extends HTMLElement {
     }
   }
   connectedCallback() {
-    const { $options } = this
     if (this.lifes == 0) {
       {
         // create the shadow dom
-        const mode = $options.closeShadow ? 'closed' : 'open'
+        const mode = 'open'
         this.content = this.attachShadow({ mode })
       }
       {
@@ -172,11 +167,7 @@ export default class SilverComponent extends HTMLElement {
     // remove all event listeners
     DelegatedEvents.forEach((eventName) => {
       // do remove
-      this.content.removeEventListener(
-        eventName,
-        this.eventDelegator,
-        UseCapture
-      )
+      this.rootNode.removeEventListener(eventName, this.eventDelegator)
     })
 
     // clear content

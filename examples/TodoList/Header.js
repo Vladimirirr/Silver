@@ -2,9 +2,12 @@ import { attr } from '../../src/index.js'
 
 const Header = ({ state, event }) => {
   state('todo', '')
+
   const addTodo = () => {
     event.emit('addTodo', state('todo'))
+    state('todo', '')
   }
+
   return {
     render: () => {
       return `

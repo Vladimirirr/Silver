@@ -7,6 +7,8 @@ export const eventDelegator = (event, instance) => {
   if (isNotEmpty(listening)) {
     instance.event.run(listening, event)
   }
+  // All events are blocked in here, which means scoped them in their own component.
+  event.stopPropagation()
 }
 
 export const getBaseId = () => getBaseId.__id++

@@ -2,14 +2,18 @@ import { attr } from '../../src/index.js'
 
 import Header from './Header.js'
 
-const TodoList = ({ state, event, lifecycle }) => {
+const TodoList = ({ state, event }) => {
   state('list', [])
-  const listView = state('list').map((i) => `<li>${i}</li>`)
+  const addTodo = (e) => state('list', state('list').concat(e.detail))
+
   return {
     render: () => {
+      const listView = state('list').map((i) => `<li>${i}</li>`)
       return `
         <h1>My Todo List</h1>
-        <my-todo-list-header></my-todo-list-header>
+        <my-todo-list-header
+          ${event('addTodo', addTodo)}
+        ></my-todo-list-header>
         <ol>
           ${listView}
         </ol>

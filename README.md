@@ -18,6 +18,7 @@
 
 - Based on WebComponents
 - Writing components with functional style
+- A true event system between components based on DOM events
 - A Simple and Fast update strategy (upcoming)
 
 # Getting Started
