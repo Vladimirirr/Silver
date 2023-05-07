@@ -55,7 +55,7 @@ const resetUpdate = () => {
 }
 
 /**
- * scheduleUpdate
+ * schedule a series of updates
  * @param {Function} updater
  */
 const scheduleUpdate = (updater) => {

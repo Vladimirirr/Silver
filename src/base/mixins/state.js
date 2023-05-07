@@ -26,7 +26,7 @@ export default (instance) => {
       }
       if (needCallUpdate) {
         // update the component
-        instance.scheduleUpdate()
+        instance.callUpdate()
       }
     }
     // return it

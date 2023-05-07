@@ -19,7 +19,7 @@ const createComponent = (component, options) => {
       // component name
       this.name = component.name
 
-      // component update used outside
+      // component update with bound
       this.updateBound = this.update.bind(this)
     }
     // This static method will be called by `customElements.define` on first.

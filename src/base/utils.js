@@ -8,3 +8,6 @@ export const eventDelegator = (event, instance) => {
     instance.event.run(listening, event)
   }
 }
+
+export const getBaseId = () => getBaseId.__id++
+getBaseId.__id = 0

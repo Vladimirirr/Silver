@@ -1,3 +1,5 @@
+import { tryCatch, reportMsg } from '../../utils/internal/index.js'
+
 // component event
 export default (instance) => {
   // data
@@ -24,7 +26,10 @@ export default (instance) => {
     eid = +eid
     const eventData = data.get(eid)
     if (event.type === eventData.name) {
-      eventData.handler.call(event, event)
+      const [status, res] = tryCatch(eventData.handler, [event])
+      if (!status) {
+        reportMsg(res, instance.name, `Event -> ${eventData.name}`)
+      }
     }
   }
 

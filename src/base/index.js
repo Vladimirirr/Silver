@@ -1,7 +1,12 @@
 import { DelegatedEvents, UseCapture, DefaultOptions } from './constants.js'
 
-import { isNotSameValue, camelize } from '../utils/internal/index.js'
-import { eventDelegator } from './utils.js'
+import {
+  Empty,
+  isNotSameValue,
+  camelize,
+  reportMsg,
+} from '../utils/internal/index.js'
+import { eventDelegator, getBaseId } from './utils.js'
 
 import scheduleUpdate from '../scheduler/index.js'
 
@@ -13,6 +18,9 @@ import mixinProps from './mixins/props.js'
 export default class SilverComponent extends HTMLElement {
   constructor(component, options) {
     super()
+
+    // set id
+    this.baseId = getBaseId()
 
     // save the meta data
     this.component = component
@@ -30,8 +38,6 @@ export default class SilverComponent extends HTMLElement {
     mixinEvent(this)
     mixinLifecycle(this)
     mixinProps(this)
-
-    this.init()
   }
   init() {
     this.status = 'preparing'
@@ -39,21 +45,58 @@ export default class SilverComponent extends HTMLElement {
     const result = this.component.initialize(this)
     this.$render = result.render
     this.$style = result.style
+
+    // add the event delegator
+    this.eventDelegator = (event) => eventDelegator(event, this)
+    DelegatedEvents.forEach((eventName) => {
+      // Use capture mode to avoid that can not receive these events processed by stopPropagation.
+      this.content.addEventListener(eventName, this.eventDelegator, UseCapture)
+    })
+
+    // render style
+    this.styleNode.textContent = this.$style
+    // render view
+    this.update()
+
+    this.lifes++
+
+    this.status = 'running'
+  }
+  fresh() {
+    // do diff and patch on the new and old view
+    // for now, just using innerHTML
+    this.rootNode.innerHTML = this.$render(this.props)
   }
   update() {
-    if (this.status == 'ended') {
-      throw 'Can not call the update when component already has been ended.'
+    const isInMount = ['beforeMount', 'mounted']
+    const isInUpdate = ['beforeUpdate', 'updated']
+    const s = this.status
+    let lc = [] // lc = lifecycle list
+    switch (s) {
+      case 'preparing':
+        lc = isInMount
+        break
+      case 'running':
+        lc = isInUpdate
+        break
+      default:
+        reportMsg('Can not do update when component is not running.', this.name)
+        return
     }
 
-    this.rootNode.innerHTML = this.$render(this.props)
+    this.lifecycle.call(lc[0])
 
-    if (this.status == 'running') {
-      this.lifecycle.call('updated')
-    }
+    this.fresh()
+
+    this.lifecycle.call(lc[1])
   }
-  scheduleUpdate() {
+  callUpdate(immediate) {
     if (this.status == 'running') {
-      scheduleUpdate(this.updateBound)
+      if (immediate) {
+        this.updateBound()
+      } else {
+        scheduleUpdate(this.updateBound)
+      }
     }
   }
   sendData(name, data) {
@@ -61,7 +104,7 @@ export default class SilverComponent extends HTMLElement {
     const newData = data
     if (isNotSameValue(oldData, newData)) {
       this.props.set(name, newData)
-      this.update()
+      this.callUpdate()
     }
   }
   connectedCallback() {
@@ -76,9 +119,10 @@ export default class SilverComponent extends HTMLElement {
         // init component style node
         const styleNode = document.createElement('style')
         styleNode.id = 'componentStyle'
-        styleNode.textContent = this.$style
         this.content.appendChild(styleNode)
         this.styleNode = styleNode
+
+        // Using the newer "adoptedStyleSheets" api to set global styles for a document may be the best practice.
       }
       {
         // init root container node
@@ -88,49 +132,38 @@ export default class SilverComponent extends HTMLElement {
         this.content.appendChild(rootNode)
         this.rootNode = rootNode
       }
-    } else {
-      this.init()
     }
 
-    this.eventDelegator = (event) => eventDelegator(event, this)
-    DelegatedEvents.forEach((eventName) => {
-      // Use capture mode to avoid that can not receive these events processed by stopPropagation.
-      this.content.addEventListener(eventName, this.eventDelegator, UseCapture)
-    })
-
-    // first update
-    this.update()
-
-    this.lifecycle.call('mounted')
-
-    this.status = 'running'
-
-    this.lifes++
+    this.init()
   }
   disconnectedCallback() {
     this.lifecycle.call('beforeUnmount')
 
-    // // remove all event listeners
-    // DelegatedEvents.forEach((eventName) => {
-    //   // do remove
-    //   this.content.removeEventListener(
-    //     eventName,
-    //     this.eventDelegator,
-    //     UseCapture
-    //   )
-    // })
+    // remove all event listeners
+    DelegatedEvents.forEach((eventName) => {
+      // do remove
+      this.content.removeEventListener(
+        eventName,
+        this.eventDelegator,
+        UseCapture
+      )
+    })
 
-    // // clear all core parts
-    // this.state.clear()
-    // this.event.clear()
-    // this.lifecycle.clear()
-    // this.props.clear()
+    // clear content
+    this.rootNode.innerHTML = ''
+    this.styleNode.innerHTML = ''
 
-    // // clear content
-    // this.rootNode.innerHTML = ''
-    // this.styleNode.innerHTML = ''
+    // clear $render and $style
+    this.$render = Empty
+    this.$style = Empty
 
     this.lifecycle.call('unmounted')
+
+    // clear all core parts
+    this.state.clear()
+    this.event.clear()
+    this.lifecycle.clear()
+    // this.props.clear() // DO NOT CLEAR PROPS
 
     this.status = 'ended'
   }
@@ -138,7 +171,7 @@ export default class SilverComponent extends HTMLElement {
     if (isNotSameValue(oldValue, newValue)) {
       this.props.set(camelize(name), newValue)
       if (this.status == 'running') {
-        this.update()
+        this.callUpdate()
       }
     }
   }
