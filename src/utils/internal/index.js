@@ -12,12 +12,39 @@ export const isNumber = (v) => typeof v == 'number'
 export const isString = (v) => typeof v == 'string'
 export const isObject = (v) => typeof v == 'object' && v !== null
 export const isArray = (v) => isObject(v) && isNotEmpty(v.length)
+export const isFunction = (v) => typeof v == 'function'
 
 /**
  * get a brand new object
  * @return {Object}
  */
 export const getObject = () => ({})
+
+/**
+ * make a char Uppercase or Lowercase in a string
+ * @param {string} str - a string
+ * @param {number} pos - 0 meas first and -1 means last
+ * @param {string} pos - 'Upper' | 'Lower'
+ * @return {string}
+ */
+export const makeCharUpperOrLower = (str, pos, toWhat) => {
+  const strLen = str.length
+
+  if (pos < 0) {
+    // make sure pos >= 0
+    pos = Math.max(0, strLen - pos)
+  }
+  // make sure pos <= strLen - 1
+  pos = Math.min(strLen - 1, pos)
+
+  const theChar = str[pos]
+  const theCharRes = theChar[`to${toWhat}Case`]()
+  const res = Array.from(str)
+
+  res.splice(pos, 1, theCharRes)
+
+  return res.join('')
+}
 
 /**
  * make a name camelized or dashed determined by the reverse

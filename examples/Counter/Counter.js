@@ -92,7 +92,7 @@ const CounterCore = ({ state, event, lifecycle }) => {
 }
 
 export default {
-  name: 'MyCounter',
+  name: 'MyCounter', // the component name as well as the tag name when rendered
   initialize: CounterCore,
   props: ['showColor'],
   emits: [],

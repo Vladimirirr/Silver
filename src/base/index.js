@@ -44,7 +44,7 @@ export default class SilverComponent extends HTMLElement {
 
     const result = this.component.initialize(this)
     this.$render = result.render
-    this.$style = result.style
+    this.$style = result.style || ''
 
     // add the event delegator
     this.eventDelegator = (event) => eventDelegator(event, this)
