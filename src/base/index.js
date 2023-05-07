@@ -5,6 +5,7 @@ import {
   isNotSameValue,
   camelize,
   reportMsg,
+  wipeEmptyAttrs,
 } from '../utils/internal/index.js'
 import { eventDelegator, getBaseId } from './utils.js'
 
@@ -15,6 +16,7 @@ import mixinState from './mixins/state.js'
 import mixinEvent from './mixins/event.js'
 import mixinLifecycle from './mixins/lifecycle.js'
 import mixinProps from './mixins/props.js'
+import mixinRelationship from './mixins/relationship.js'
 
 /**
  * The SilverComponent Class definition.
@@ -29,7 +31,7 @@ export default class SilverComponent extends HTMLElement {
 
     // save the meta data
     this.$component = component
-    this.$options = Object.assign({}, DefaultOptions, options)
+    this.$options = Object.assign({}, DefaultOptions, wipeEmptyAttrs(options))
 
     // how many times the component had been mounted and unmounted
     this.lifes = 0
@@ -43,29 +45,52 @@ export default class SilverComponent extends HTMLElement {
     mixinEvent(this)
     mixinLifecycle(this)
     mixinProps(this)
+    mixinRelationship(this)
   }
   init() {
     this.status = 'preparing'
 
-    const result = this.$component.initialize(this)
-    this.$render = result.render
-    this.$style = result.style || ''
+    // set relationship
+    {
+      const parent = this.$options.parent
+
+      if (parent) {
+        // set parent
+        this.relationship.parent(parent)
+        // tell parent to set me as child
+        parent.relationship.child(this)
+      }
+    }
+
+    // get render and style from the component
+    {
+      const result = this.$component.initialize(this)
+      this.$render = result.render
+      this.$style = result.style || ''
+    }
 
     // add the event delegator
-    this.eventDelegator = (event) => eventDelegator(event, this)
-    DelegatedEvents.forEach((eventName) => {
-      // Use capture mode to avoid that can not receive these events processed by stopPropagation.
-      this.content.addEventListener(eventName, this.eventDelegator, UseCapture)
-    })
-
-    // render style
-    this.styleNode.textContent = this.$style
-    // render view
-    this.update()
+    {
+      this.eventDelegator = (event) => eventDelegator(event, this)
+      DelegatedEvents.forEach((eventName) => {
+        // Use capture mode to avoid that can not receive these events processed by stopPropagation.
+        this.content.addEventListener(
+          eventName,
+          this.eventDelegator,
+          UseCapture
+        )
+      })
+    }
 
     this.lifes++
 
     this.status = 'running'
+
+    // finally we do the first render
+    // render style
+    this.styleNode.textContent = this.$style
+    // render view
+    this.callUpdate()
   }
   fresh() {
     // do diff and patch on the new and old view

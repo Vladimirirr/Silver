@@ -89,3 +89,14 @@ export const tryCatch = (fn, args = [], thisArg = null) => {
     return [false, err]
   }
 }
+
+/**
+ * wipe all attributes with Empty value
+ * @param {Object} object
+ * @return {Object}
+ */
+export const wipeEmptyAttrs = (object) =>
+  Object.keys(object).reduce((acc, cur) => {
+    const v = object[cur]
+    return isEmpty(v) ? acc : ((acc[cur] = v), acc)
+  }, {})

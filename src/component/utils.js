@@ -1,4 +1,4 @@
-import { isArray, isFunction, isEmpty } from '../utils/internal/index.js'
+import { isArray, isFunction, wipeEmptyAttrs } from '../utils/internal/index.js'
 
 // format component itself
 export const formatCompoent = (component) => {
@@ -18,8 +18,6 @@ export const formatCompoent = (component) => {
 }
 
 // format component carried options removing all Empty attrs
-export const formatCompoentCarriedOptions = (options) =>
-  Object.keys(options).reduce((acc, cur) => {
-    const v = options[cur]
-    return isEmpty(v) ? acc : (acc[cur] = v)
-  }, {})
+export const formatCompoentCarriedOptions = (options) => {
+  return wipeEmptyAttrs(options)
+}

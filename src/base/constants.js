@@ -4,4 +4,5 @@ export const UseCapture = true
 
 export const DefaultOptions = {
   closeShadow: false,
+  parent: null,
 }

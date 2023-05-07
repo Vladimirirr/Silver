@@ -1,4 +1,5 @@
 import { tryCatch, reportMsg } from '../../utils/internal/index.js'
+import { DelegatedEvents } from '../constants.js'
 
 // component event
 export default (instance) => {
@@ -9,10 +10,16 @@ export default (instance) => {
   // main
   instance.event = (name, handler) => {
     const eid = id++
-    data.set(eid, {
-      name,
-      handler,
-    })
+    if (DelegatedEvents.includes(name)) {
+      // dom event
+      data.set(eid, {
+        name,
+        handler,
+      })
+    } else {
+      // custom event
+      instance.event.on(name, handler)
+    }
     return `data-listening="${eid}"`
   }
 
