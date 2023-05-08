@@ -1,6 +1,6 @@
 import SilverComponent from '../base/index.js'
 
-import { camelize, makeCharUpperOrLower } from '../utils/internal/index.js'
+import { camelize, toTagName } from '../utils/internal/index.js'
 import { formatCompoent, formatCompoentCarriedOptions } from './utils.js'
 
 /**
@@ -19,12 +19,9 @@ const createComponent = (component, options) => {
       // component name
       this.name = component.name
 
-      // component update with bound
-      this.updateBound = this.update.bind(this)
-
       // define its children
       component.components.forEach((c) => {
-        const tagName = camelize(makeCharUpperOrLower(c.name, 0, 'Lower'), true)
+        const tagName = toTagName(c.name)
         const componentCarriedOptions = Object.assign({}, options, {
           parent: this,
         })

@@ -1,8 +1,8 @@
-<p style="text-align: center">
-  <img src="./logo.svg" align="center" />
+<p style="text-align: center" align="center">
+  <!-- <img src="./logo.svg" /> -->
 </p>
 
-<h1 style="text-align: center">
+<h1 style="text-align: center" align="center">
   <a href="https://github.com/Vladimirirr/Silver">Silver</a>
 </h1>
 

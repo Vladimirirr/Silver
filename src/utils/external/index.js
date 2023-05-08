@@ -1,1 +1,1 @@
-export { attr } from './dom.js'
+export { toAttr, toComponent } from './dom.js'

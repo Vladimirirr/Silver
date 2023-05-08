@@ -1,4 +1,4 @@
-import { attr } from '../../src/index.js'
+import { toAttr } from '../../src/index.js'
 
 const Header = ({ state, event }) => {
   state('todo', '')
@@ -14,7 +14,7 @@ const Header = ({ state, event }) => {
         <input 
           type="text"
           placeholder="add a todo..." 
-          ${attr('value', state('todo'))}
+          ${toAttr('value', state('todo'))}
           ${event('change', (e) => state('todo', e.target.value))}
         />
         <input

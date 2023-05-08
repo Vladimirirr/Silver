@@ -14,7 +14,9 @@ const enqueueUpdater = (updater) => {
   if (isExisted) {
     return
   }
+  // Update should begin from the sub components.
   updatersQueue.push(updater)
+  updatersQueue.sort((a, b) => b.id - a.id)
 }
 
 /**

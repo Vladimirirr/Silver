@@ -33,27 +33,30 @@ export default class SilverComponent extends HTMLElement {
     this.$component = component
     this.$options = Object.assign({}, DefaultOptions, wipeEmptyAttrs(options))
 
-    // how many times the component had been mounted and unmounted
+    // lifes times (mounted and unmounted for one time)
     this.lifes = 0
 
     // internal status: constructing, preparing, running, ended
     // the constructing only appears once
     this.status = 'constructing'
 
-    // mxin all core parts of the component
+    // flags
+    this.isMounted = false
+
+    // mxin all effects for the component
     mixinState(this)
     mixinEvent(this)
     mixinLifecycle(this)
     mixinProps(this)
     mixinRelationship(this)
-  }
-  init() {
-    this.status = 'preparing'
 
+    // one-time init
+    this.firstInit()
+  }
+  firstInit() {
     // set relationship
     {
       const parent = this.$options.parent
-
       if (parent) {
         // set parent
         this.relationship.parent(parent)
@@ -61,6 +64,14 @@ export default class SilverComponent extends HTMLElement {
         parent.relationship.child(this)
       }
     }
+    // set update with bound and id (for priority)
+    {
+      this.updateBound = this.update.bind(this)
+      this.updateBound.id = this.baseId
+    }
+  }
+  init() {
+    this.status = 'preparing'
 
     // get render and style from the component
     {
@@ -73,7 +84,6 @@ export default class SilverComponent extends HTMLElement {
     {
       this.eventDelegator = (event) => eventDelegator(event, this)
       DelegatedEvents.forEach((eventName) => {
-        // Use capture mode to avoid that can not receive these events processed by stopPropagation.
         this.rootNode.addEventListener(eventName, this.eventDelegator)
       })
     }
@@ -94,27 +104,24 @@ export default class SilverComponent extends HTMLElement {
     this.rootNode.innerHTML = this.$render(this.props)
   }
   update() {
+    if (this.status != 'running') {
+      reportMsg('Can not do update when component is not running.', this.name)
+      return
+    }
+    const isMounted = this.isMounted
     const isInMount = ['beforeMount', 'mounted']
     const isInUpdate = ['beforeUpdate', 'updated']
-    const s = this.status
-    let lc = [] // lc = lifecycle list
-    switch (s) {
-      case 'preparing':
-        lc = isInMount
-        break
-      case 'running':
-        lc = isInUpdate
-        break
-      default:
-        reportMsg('Can not do update when component is not running.', this.name)
-        return
-    }
+    const chosen = isMounted ? isInUpdate : isInMount
 
-    this.lifecycle.call(lc[0])
+    this.lifecycle.call(chosen[0])
 
     this.fresh()
 
-    this.lifecycle.call(lc[1])
+    if (!isMounted) {
+      this.isMounted = true
+    }
+
+    this.lifecycle.call(chosen[1])
   }
   callUpdate(immediate) {
     if (this.status == 'running') {
@@ -137,8 +144,7 @@ export default class SilverComponent extends HTMLElement {
     if (this.lifes == 0) {
       {
         // create the shadow dom
-        const mode = 'open'
-        this.content = this.attachShadow({ mode })
+        this.content = this.attachShadow({ mode: 'open' })
       }
       {
         // init component style node
@@ -154,6 +160,7 @@ export default class SilverComponent extends HTMLElement {
         const rootNode = document.createElement('div')
         rootNode.id = 'root'
         rootNode.className = 'root'
+        rootNode.dataset.root = 'root'
         this.content.appendChild(rootNode)
         this.rootNode = rootNode
       }
@@ -166,11 +173,10 @@ export default class SilverComponent extends HTMLElement {
 
     // remove all event listeners
     DelegatedEvents.forEach((eventName) => {
-      // do remove
       this.rootNode.removeEventListener(eventName, this.eventDelegator)
     })
 
-    // clear content
+    // clear all rendered content
     this.rootNode.innerHTML = ''
     this.styleNode.innerHTML = ''
 
@@ -178,13 +184,15 @@ export default class SilverComponent extends HTMLElement {
     this.$render = Empty
     this.$style = Empty
 
+    this.isMounted = false
+
     this.lifecycle.call('unmounted')
 
-    // clear all core parts
+    // Only clear the effects created by component itself.
+    // DO NOT CLEAR the "props" and "relationship" because there are from the outside.
     this.state.clear()
     this.event.clear()
     this.lifecycle.clear()
-    // this.props.clear() // DO NOT CLEAR PROPS
 
     this.status = 'ended'
   }

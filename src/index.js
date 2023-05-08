@@ -2,4 +2,4 @@
 export { createApp } from './createApp.js'
 
 // external
-export { attr } from './utils/external/index.js'
+export { toAttr, toComponent } from './utils/external/index.js'

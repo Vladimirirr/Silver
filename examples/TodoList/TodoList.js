@@ -1,4 +1,4 @@
-import { attr } from '../../src/index.js'
+import { toComponent } from '../../src/index.js'
 
 import Header from './Header.js'
 
@@ -11,11 +11,11 @@ const TodoList = ({ state, event }) => {
       const listView = state('list').map((i) => `<li>${i}</li>`)
       return `
         <h1>My Todo List</h1>
-        <my-todo-list-header
+        <${toComponent(Header)} 
           ${event('addTodo', addTodo)}
-        ></my-todo-list-header>
+        ></${toComponent(Header)}>
         <ol>
-          ${listView}
+          ${listView.join('')}
         </ol>
         `
     },

@@ -61,6 +61,14 @@ export const camelize = (name, reverse = false) => {
 }
 
 /**
+ * transform a component name to HTML tag name
+ * @param {string} name
+ * @return {string}
+ */
+export const toTagName = (name) =>
+  camelize(makeCharUpperOrLower(name, 0, 'Lower'), true)
+
+/**
  * report something
  * - internal errors use error-style report
  * - user code errors use warn-style report

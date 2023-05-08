@@ -1,4 +1,4 @@
-import { attr } from '../../src/index.js'
+import { toAttr } from '../../src/index.js'
 
 /**
  * Define a component's initializer.
@@ -40,8 +40,8 @@ const CounterCore = ({ state, event, lifecycle }) => {
         .map(
           (_, i) =>
             `<option 
-              ${attr('selected', i + 1 == state('addStep'))} 
-              ${attr('value', i + 1)}>${i + 1}</option>`
+              ${toAttr('selected', i + 1 == state('addStep'))} 
+              ${toAttr('value', i + 1)}>${i + 1}</option>`
         )
         .join('')
       return `
@@ -53,10 +53,10 @@ const CounterCore = ({ state, event, lifecycle }) => {
         </div>
         <div class="counter">
           <button ${event('click', add)}>+</button>
-          <b ${attr('style', `color: ${showColor}`)}> ${current} </b>
+          <b ${toAttr('style', `color: ${showColor}`)}> ${current} </b>
           <button 
             ${event('click', minus)} 
-            ${attr('disabled', current == 0)}
+            ${toAttr('disabled', current == 0)}
           >
             -
           </button>
