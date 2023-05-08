@@ -6,7 +6,7 @@
   <a href="https://github.com/Vladimirirr/Silver">Silver</a>
 </h1>
 
-<p style="text-align: center">
+<p style="text-align: center" align="center">
   Silver is a web framework based on WebComponents.
 </p>
 
