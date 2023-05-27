@@ -42,16 +42,16 @@ export default class SilverComponent extends HTMLElement {
     // flags
     this.isMounted = false
 
+    // set update method with bound this and its id (for priority)
+    this.updateBound = this.update.bind(this)
+    this.updateBound.id = this.baseId
+
     // mixin all effects for the component
     mixinState(this)
     mixinEvent(this)
     mixinLifecycle(this)
     mixinProps(this)
     mixinRelationship(this)
-
-    // set update method with bound this and its id (for priority)
-    this.updateBound = this.update.bind(this)
-    this.updateBound.id = this.baseId
 
     // set relationship
     {
