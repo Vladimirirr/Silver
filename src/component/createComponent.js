@@ -23,13 +23,14 @@ const createComponent = (component, options) => {
       component.components.forEach((c) => {
         const tagName = toTagName(c.name)
         const componentCarriedOptions = Object.assign({}, options, {
+          // for relationship
           parent: this,
         })
         const componentClass = createComponent(c, componentCarriedOptions)
         customElements.define(tagName, componentClass)
       })
     }
-    // This static method will be called by `customElements.define` on first.
+    // This static method will be called by "customElements.define" on first.
     static get observedAttributes() {
       const { props } = component
       const needObserving = props.map((i) => camelize(i, true))

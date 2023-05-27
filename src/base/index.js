@@ -1,13 +1,12 @@
-import { DelegatedEvents, DefaultOptions } from './constants.js'
+import { DefaultOptions, HooksInMount, HooksInUpdate } from './constants.js'
 
 import {
   Empty,
   isNotSameValue,
   camelize,
   reportMsg,
-  wipeEmptyAttrs,
 } from '../utils/internal/index.js'
-import { eventDelegator, getBaseId } from './utils.js'
+import { createEventDelegator, getBaseId } from './utils.js'
 
 import scheduleUpdate from '../scheduler/index.js'
 
@@ -31,7 +30,7 @@ export default class SilverComponent extends HTMLElement {
 
     // save the meta data
     this.$component = component
-    this.$options = Object.assign({}, DefaultOptions, wipeEmptyAttrs(options))
+    this.$options = Object.assign({}, DefaultOptions, options)
 
     // lifes times (mounted and unmounted for one time)
     this.lifes = 0
@@ -43,17 +42,17 @@ export default class SilverComponent extends HTMLElement {
     // flags
     this.isMounted = false
 
-    // mxin all effects for the component
+    // mixin all effects for the component
     mixinState(this)
     mixinEvent(this)
     mixinLifecycle(this)
     mixinProps(this)
     mixinRelationship(this)
 
-    // one-time init
-    this.firstInit()
-  }
-  firstInit() {
+    // set update method with bound this and its id (for priority)
+    this.updateBound = this.update.bind(this)
+    this.updateBound.id = this.baseId
+
     // set relationship
     {
       const parent = this.$options.parent
@@ -63,11 +62,6 @@ export default class SilverComponent extends HTMLElement {
         // tell parent to set me as child
         parent.relationship.child(this)
       }
-    }
-    // set update with bound and id (for priority)
-    {
-      this.updateBound = this.update.bind(this)
-      this.updateBound.id = this.baseId
     }
   }
   init() {
@@ -81,12 +75,7 @@ export default class SilverComponent extends HTMLElement {
     }
 
     // add the event delegator
-    {
-      this.eventDelegator = (event) => eventDelegator(event, this)
-      DelegatedEvents.forEach((eventName) => {
-        this.rootNode.addEventListener(eventName, this.eventDelegator)
-      })
-    }
+    this.eventDelegator = createEventDelegator(this)
 
     this.lifes++
 
@@ -98,7 +87,7 @@ export default class SilverComponent extends HTMLElement {
     // render view
     this.callUpdate()
   }
-  fresh() {
+  patch() {
     // do diff and patch on the new and old view
     // for now, just using innerHTML
     this.rootNode.innerHTML = this.$render(this.props)
@@ -109,13 +98,11 @@ export default class SilverComponent extends HTMLElement {
       return
     }
     const isMounted = this.isMounted
-    const isInMount = ['beforeMount', 'mounted']
-    const isInUpdate = ['beforeUpdate', 'updated']
-    const chosen = isMounted ? isInUpdate : isInMount
+    const chosen = isMounted ? HooksInUpdate : HooksInMount
 
     this.lifecycle.call(chosen[0])
 
-    this.fresh()
+    this.patch()
 
     if (!isMounted) {
       this.isMounted = true
@@ -171,14 +158,9 @@ export default class SilverComponent extends HTMLElement {
   disconnectedCallback() {
     this.lifecycle.call('beforeUnmount')
 
-    // remove all event listeners
-    DelegatedEvents.forEach((eventName) => {
-      this.rootNode.removeEventListener(eventName, this.eventDelegator)
-    })
-
     // clear all rendered content
     this.rootNode.innerHTML = ''
-    this.styleNode.innerHTML = ''
+    this.styleNode.textContent = ''
 
     // clear $render and $style
     this.$render = Empty

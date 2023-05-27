@@ -14,6 +14,7 @@ export default (instance) => {
       data.set(name, [hook])
     }
   }
+
   // consts for all lifecycles
   instance.lifecycle.BeforeMount = 'beforeMount'
   instance.lifecycle.Mounted = 'mounted'
@@ -26,7 +27,7 @@ export default (instance) => {
   instance.lifecycle.call = (name) => {
     const hooks = data.get(name)
     hooks?.forEach((hook) => {
-      // The component is a pure function with limited effects, so the `this` is not needed for all methods declared in the function.
+      // The component is a pure function with limited effects, so the "this" is not needed for all methods declared in the function.
       const [status, res] = tryCatch(hook)
       if (!status) {
         reportMsg(res, instance.name, `Lifecycle -> ${name}`)

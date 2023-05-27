@@ -11,11 +11,12 @@ let isUpdating = false
  */
 const enqueueUpdater = (updater) => {
   const isExisted = updatersQueue.indexOf(updater) > -1
-  if (isExisted) {
-    return
-  }
-  // Update should begin from the sub components.
+  if (isExisted) return
+
+  // Push.
   updatersQueue.push(updater)
+
+  // Update should begin from the sub components.
   updatersQueue.sort((a, b) => b.id - a.id)
 }
 
@@ -23,11 +24,11 @@ const enqueueUpdater = (updater) => {
  * begin the update
  */
 const beginUpdate = () => {
-  // use `while` to test that the updatersQueue is empty now or not
+  // Use "while" to test that the updatersQueue is empty now or not.
   while (updatersQueue.length) {
-    // updatersQueue is a FIFO queue, so get the head updater
+    // The "updatersQueue" is a FIFO queue, so get the head updater in each loop.
     const updater = updatersQueue.shift()
-    // detect if an infinite loop appeared
+    // To detect if an infinite loop appeared.
     if (!updatersCurrentUpdatedCount.has(updater)) {
       updatersCurrentUpdatedCount.set(updater, 0)
     }
@@ -38,9 +39,9 @@ const beginUpdate = () => {
       // abort
       break
     }
-    // call this updater
+    // Call this updater.
     updater()
-    // add the updater's count
+    // Add the updater's count.
     updatersCurrentUpdatedCount.set(updater, updaterCurrentCount + 1)
   }
 

@@ -10,7 +10,6 @@ export default (instance) => {
   instance.relationship = () => data
 
   // internal
-
   instance.relationship.parent = (c) => (data.parent = c)
   instance.relationship.child = (c) => data.children.push(c)
 

@@ -1,24 +1,31 @@
 import { tryCatch, reportMsg } from '../../utils/internal/index.js'
-import { DelegatedEvents } from '../constants.js'
+
+const isDefinedCustomEvent = (name, instance) =>
+  instance.$component.emits.includes(name)
 
 // component event
 export default (instance) => {
   // data
   const data = new Map()
+  const domEvents = []
   let id = 0
 
   // main
   instance.event = (name, handler) => {
     const eid = id++
-    if (DelegatedEvents.includes(name)) {
+    if (isDefinedCustomEvent(name, instance)) {
+      // custom event
+      instance.event.on(name, handler)
+    } else {
       // dom event
       data.set(eid, {
         name,
         handler,
       })
-    } else {
-      // custom event
-      instance.event.on(name, handler)
+      if (!domEvents.includes(name)) {
+        domEvents.push(name)
+        instance.rootNode.addEventListener(name, instance.eventDelegator)
+      }
     }
     return `data-listening="${eid}"`
   }
@@ -31,7 +38,7 @@ export default (instance) => {
     instance.rootNode.removeEventListener(name, handler)
   }
   instance.event.emit = (name, data) => {
-    // Invoke "dispatchEvent" on a Node --> The Node spreads the event --> The two capturing and bubbling stages happen
+    // Invoke "dispatchEvent" on a Node --> The Node spreads the event --> The two capturing and bubbling stages happen if available
     instance.dispatchEvent(
       new CustomEvent(name, {
         // bubbles
@@ -59,6 +66,10 @@ export default (instance) => {
   // internal
   instance.event.clear = () => {
     data.clear()
+    domEvents.forEach((name) =>
+      instance.rootNode.removeEventListener(name, instance.eventDelegator)
+    )
+    domEvents.length = 0
     id = 0
   }
 }
