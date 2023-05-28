@@ -69,7 +69,12 @@ export default class SilverComponent extends HTMLElement {
 
     // get render and style from the component
     {
-      const result = this.$component.initialize(this)
+      const result = this.$component.initialize({
+        state: this.state,
+        event: this.event,
+        lifecycle: this.lifecycle,
+        relationship: this.relationship,
+      })
       this.$render = result.render
       this.$style = result.style || ''
     }
@@ -90,7 +95,7 @@ export default class SilverComponent extends HTMLElement {
   patch() {
     // do diff and patch on the new and old view
     // for now, just using innerHTML
-    this.rootNode.innerHTML = this.$render(this.props)
+    this.rootNode.innerHTML = this.$render(this.props.data)
   }
   update() {
     if (this.status != 'running') {
@@ -120,7 +125,7 @@ export default class SilverComponent extends HTMLElement {
     }
   }
   sendData(name, data) {
-    const oldData = this.props[name]
+    const oldData = this.props.data[name]
     const newData = data
     if (isNotSameValue(oldData, newData)) {
       this.props.set(name, newData)

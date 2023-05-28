@@ -1,6 +1,7 @@
-import { toComponent } from '../../src/index.js'
+import { toComponent as c, toAttr } from '../../src/index.js'
 
 import Header from './Header.js'
+import Body from './Body.js'
 
 const TodoList = ({ state, event }) => {
   state('list', [])
@@ -8,18 +9,13 @@ const TodoList = ({ state, event }) => {
 
   return {
     render: () => {
-      const listView = state('list').map((i) => `<li>${i}</li>`)
       return `
         <h1>My Todo List</h1>
-        <${toComponent(Header)} 
-          ${event('addTodo', addTodo)}
-        ></${toComponent(Header)}>
-        <ol>
-          ${listView.join('')}
-        </ol>
+        <${c(Header)} ${event('addTodo', addTodo)}></${c(Header)}>
+        <${c(Body)} ${toAttr('listData', state('list'), true)}></${c(Body)}>
         `
     },
-    style: ``,
+    style: '',
   }
 }
 

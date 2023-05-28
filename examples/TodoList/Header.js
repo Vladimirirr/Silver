@@ -24,7 +24,7 @@ const Header = ({ state, event }) => {
         />
         `
     },
-    style: ``,
+    style: '',
   }
 }
 

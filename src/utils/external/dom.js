@@ -1,10 +1,14 @@
 import { isBoolean, toTagName } from '../internal/index.js'
 
-export const toAttr = (name, value) => {
+export const toAttr = (name, value, keepType = false) => {
   if (isBoolean(value)) {
     return value ? `${name}` : ''
   } else {
-    return `${name}="${value}"`
+    if (keepType) {
+      // set the a props channel for the prop
+    } else {
+      return `${name}="${value}"`
+    }
   }
 }
 

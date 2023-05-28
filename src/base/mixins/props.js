@@ -1,19 +1,32 @@
-import { getObject } from '../../utils/internal/index.js'
+import { reportMsg } from '../../utils/internal/index.js'
 
 // component props
 export default (instance) => {
   // data
-  let data = getObject()
+  const data = {}
 
   // main
-  instance.props = (name) => data[name]
+  instance.props = {
+    // props
+    data: new Proxy(data, {
+      get(target, key, receiver) {
+        return Reflect.get(target, key, receiver)
+      },
+      set(_, key) {
+        reportMsg(
+          'Props is readonly.',
+          instance.name,
+          `Try to set ${key}`,
+          'warn'
+        )
+        return false
+      },
+    }),
 
-  // internal
-  instance.props.set = (name, value) => (data[name] = value)
-  instance.props.reveal = () => data
-
-  // internal
-  instance.props.clear = () => {
-    data = getObject()
+    // internal
+    set: (name, value) => (data[name] = value),
+    clear: () => {
+      Object.keys(data).forEach((key) => delete data[key])
+    },
   }
 }

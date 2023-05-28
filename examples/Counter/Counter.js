@@ -33,7 +33,7 @@ const CounterCore = ({ state, event, lifecycle }) => {
   // A component must have and only have one root node.
   return {
     render: (props) => {
-      const showColor = props('showColor')
+      const showColor = props.showColor
       const current = state('current')
       const stepOptions = Array(4)
         .fill(1)
