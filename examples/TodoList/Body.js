@@ -1,7 +1,7 @@
 const Body = () => {
   return {
     render: (props) => {
-      const listView = props('listData').map((i) => `<li>${i}</li>`)
+      const listView = props.listData.map((i) => `<li>${i}</li>`)
       return `
         <ol>
           ${listView.join('')}

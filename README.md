@@ -10,9 +10,13 @@
   Silver is a web framework based on WebComponents.
 </p>
 
-**Status: Rapid development in progress**
-
 **English** | [简体中文](./README.zh_CN.md)
+
+# TODO
+
+1. The `ref` directive
+2. The DOM Patch algorithm based on tagged template
+3. Supports non-string and complex data for props
 
 # Features
 
@@ -20,11 +24,9 @@
 - Writing components with functional style
 - Zero dependencies
 - A true event system between components based on DOM events
-- A Simple and Fast update strategy (upcoming)
+- A Simple and Fast update strategy
 
 # Getting Started
-
-Just for now:
 
 1. Clone the repository.
 2. Start a static http server in one of the examples in `/examples/*`.

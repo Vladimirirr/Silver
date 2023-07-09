@@ -15,6 +15,34 @@ export const isObject = (v) => typeof v == 'object' && v !== null
 export const isArray = (v) => Array.isArray(v)
 
 /**
+ * get a value's type.
+ * @param {any} v
+ * @return {string}
+ */
+export const getType = (v) => {
+  switch (typeof v) {
+    case 'string':
+      return 'string'
+    case 'number':
+      return 'number'
+    case 'boolean':
+      return 'boolean'
+    case 'bigint':
+      return 'bigint'
+    case 'symbol':
+      return 'symbol'
+    case 'undefined':
+      return 'undefined'
+    case 'function':
+      return 'function'
+    case 'object':
+      if (v === null) return 'null'
+      if (isArray(v)) return 'Array'
+      return 'Object'
+  }
+}
+
+/**
  * get a brand new object
  * @return {Object}
  */

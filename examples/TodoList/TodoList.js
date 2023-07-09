@@ -12,7 +12,9 @@ const TodoList = ({ state, event }) => {
       return `
         <h1>My Todo List</h1>
         <${c(Header)} ${event('addTodo', addTodo)}></${c(Header)}>
-        <${c(Body)} ${toAttr('listData', state('list'), true)}></${c(Body)}>
+        <!--
+          <${c(Body)} ${toAttr('listData', state('list'), true)}></${c(Body)}>
+        -->
         `
     },
     style: '',
@@ -24,5 +26,5 @@ export default {
   initialize: TodoList,
   props: [],
   emits: [],
-  components: [Header],
+  components: [Header, Body],
 }
